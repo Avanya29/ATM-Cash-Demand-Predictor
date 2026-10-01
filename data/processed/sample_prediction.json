@@ -1,0 +1,9 @@
+{
+  "model": "Gradient Boosting",
+  "model_path": "models/gradient_boosting_pipeline.joblib",
+  "atm_name": "Mount Road ATM",
+  "forecast_date": "2017-06-15",
+  "predicted_demand_usd": 5124.0768,
+  "actual_demand_usd_reference": "1,915.76",
+  "note": "Actual value is shown for validation only. In production, the actual value for the forecast date is never available at prediction time."
+}

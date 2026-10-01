@@ -47,3 +47,7 @@ data/processed/*.parquet
 data/processed/*.pkl
 data/processed/*.joblib
 !data/processed/.gitkeep
+
+# Trained ML model artifacts
+models/*.joblib
+models/*.pkl
