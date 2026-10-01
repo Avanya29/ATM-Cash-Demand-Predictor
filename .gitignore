@@ -1,0 +1,49 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Logs
+*.log
+
+# pytest
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage
+
+# Custom Data Directories
+# Ignore raw datasets
+data/raw/*
+!data/raw/.gitkeep
+
+# Ignore processed datasets, but allow documentation and plots
+data/processed/*.csv
+data/processed/*.xlsx
+data/processed/*.parquet
+data/processed/*.pkl
+data/processed/*.joblib
+!data/processed/.gitkeep
