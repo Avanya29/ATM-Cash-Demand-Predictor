@@ -1,49 +1,66 @@
-# Baseline Evaluation Report
+# Baseline Evaluation Report (Common Calendar-Date Split)
 
-## Dataset Information
-- **Source**: `data/processed/atm_features_model_ready.csv`
-- **Total ATMs**: 5
-- **Total Rows**: 11519
+## Methodology Overview
+- **Primary Benchmark (Common Calendar Cutoff)**: To eliminate cross-ATM macro leakage and evaluate all 5 ATMs across the exact same economic and calendar horizon, unified date cutoffs are enforced:
+  - **Training Period**: `Transaction Date <= 2015-12-31` (8,596 rows across 5 ATMs)
+  - **Validation Period**: `2016-01-01` to `2016-12-31` (914 rows across 5 ATMs)
+  - **Test Period**: `2017-01-01` to `2017-09-29` (786 rows across 5 ATMs)
+- **Secondary Diagnostic Benchmark**: The legacy per-ATM 70/15/15 ratio split is retained for diagnostic comparison.
 
-## Methodology
-- **Split Strategy**: Chronological split per ATM to prevent data leakage and preserve temporal ordering. Random shuffling is strictly forbidden in time-series forecasting to ensure no future data leaks into the past.
-- **Split Proportions**: 70% Train, 15% Validation, 15% Test.
+## Eligible Rows and Date Ranges by ATM (Common Calendar Split)
+| ATM Name | Total Rows | Train Rows | Val Rows | Test Rows | Train Range | Val Range | Test Range |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Airport ATM | 1895 | 1694 | 120 | 81 | 2011-01-15 to 2015-12-31 | 2016-01-03 to 2016-10-28 | 2017-01-23 to 2017-09-29 |
+| Big Street ATM | 2099 | 1694 | 233 | 172 | 2011-01-15 to 2015-12-31 | 2016-01-01 to 2016-11-25 | 2017-01-31 to 2017-09-29 |
+| Christ College ATM | 2164 | 1751 | 236 | 177 | 2011-01-15 to 2015-12-31 | 2016-01-01 to 2016-11-08 | 2017-02-03 to 2017-09-29 |
+| KK Nagar ATM | 2151 | 1747 | 229 | 175 | 2011-01-15 to 2015-12-31 | 2016-01-01 to 2016-12-01 | 2017-01-11 to 2017-09-29 |
+| Mount Road ATM | 1987 | 1710 | 96 | 181 | 2011-01-15 to 2015-12-02 | 2016-02-06 to 2016-11-08 | 2017-02-15 to 2017-09-29 |
 
-## Date Ranges
-- **Train**: 2011-01-15 to 2015-08-03
-- **Validation**: 2015-05-19 to 2016-08-04
-- **Test**: 2016-05-13 to 2017-09-29
+## Baseline Model Definitions
+1. **Naive Previous Day**: Predicted demand = `demand_lag_1` (demand on calendar date t - 1).
+2. **7-Day Historical Average**: Predicted demand = `demand_rolling_mean_7` (moving average of observed demand over prior 7 calendar days t-7 to t-1).
 
-## Baseline Definitions
-- **Naive Previous Day**: Predicted demand = `demand_lag_1`
-- **7-Day Historical Average**: Predicted demand = `demand_rolling_mean_7`
+## Primary Common-Calendar Baseline Metrics
+*Evaluated on exactly 914 validation rows and 786 test rows.*
 
-## Overall Metrics
-| Model | Dataset | MAE | RMSE | MAPE | WAPE |
-| --- | --- | --- | --- | --- | --- |
-| Naive Previous Day | Validation | 3304.3099 | 4529.3178 | 5.2195 | 0.4499 |
-| 7-Day Historical Average | Validation | 2717.5956 | 3653.7719 | 7.6389 | 0.3700 |
-| Naive Previous Day | Test | 3082.6388 | 4419.1805 | 6.5502 | 0.4829 |
-| 7-Day Historical Average | Test | 2652.5003 | 3704.8831 | 13.0644 | 0.4155 |
+| Model | Dataset | Rows | MAE | RMSE | MAPE | WAPE |
+| --- | --- | --- | --- | --- | --- | --- |
+| Naive Previous Day | Validation | 914 | 3233.9702 | 4448.6636 | 3.9860 | 0.4355 |
+| 7-Day Historical Average | Validation | 914 | 2643.1562 | 3606.4943 | 3.7599 | 0.3560 |
+| Naive Previous Day | Test | 786 | 3525.6360 | 5085.7194 | 1.4392 | 0.4710 |
+| 7-Day Historical Average | Test | 786 | 2969.4012 | 4133.4141 | 1.5750 | 0.3967 |
 
-## Per-ATM Test Metrics
-| ATM Name | Model | MAE | RMSE | MAPE | WAPE |
-| --- | --- | --- | --- | --- | --- |
-| Airport ATM | Naive Previous Day | 2377.4638 | 3134.9945 | 5.9821 | 0.5272 |
-| Airport ATM | 7-Day Historical Average | 2219.4270 | 2879.7636 | 10.1613 | 0.4921 |
-| Big Street ATM | Naive Previous Day | 1928.8920 | 2521.5569 | 5.6987 | 0.3672 |
-| Big Street ATM | 7-Day Historical Average | 1657.3519 | 2177.5625 | 7.3386 | 0.3155 |
-| Christ College ATM | Naive Previous Day | 5096.0930 | 6549.0190 | 3.0793 | 0.4500 |
-| Christ College ATM | 7-Day Historical Average | 4142.7812 | 5342.9470 | 14.8511 | 0.3659 |
-| KK Nagar ATM | Naive Previous Day | 3700.4544 | 5300.7140 | 15.8018 | 0.5583 |
-| KK Nagar ATM | 7-Day Historical Average | 3151.7241 | 4379.3773 | 29.4597 | 0.4755 |
-| Mount Road ATM | Naive Previous Day | 2235.3431 | 3085.2029 | 1.9103 | 0.5574 |
-| Mount Road ATM | 7-Day Historical Average | 2039.7571 | 2700.4286 | 2.8337 | 0.5086 |
+### Understanding Percentage Error Metrics (MAPE vs WAPE)
+> **Note on MAPE sensitivity**: Unweighted Mean Absolute Percentage Error (MAPE) divides errors by individual daily actual demands (|y - y_hat| / y). On days with very small withdrawals (e.g. $50–$200), even moderate errors produce extreme individual percentage errors (>300%), causing unweighted arithmetic averages to report MAPE > 100%.
+> **Weighted Absolute Percentage Error (WAPE)** (sum(|y - y_hat|) / sum(y)) weights each error by transaction volume and is the authoritative percentage error metric for cash demand operations.
 
-## Observations
-- The 7-Day Historical Average generally provides a smoother and more robust baseline, capturing the typical weekly demand.
-- Naive Previous Day struggles with strong day-to-day volatility but adapts instantly to sudden structural shifts.
-- Forecasting difficulty varies considerably by ATM location, as seen in the per-ATM WAPE scores.
+## Per-ATM Test Performance (Common Calendar 2017 Test Set)
+*Each ATM is evaluated on its exact eligible 2017 test rows.*
 
-## Limitations
-- These are purely historical baselines. They do not incorporate calendar features (like Day of Week or Month), contextual features (like Working Day or Festivals), or capture any complex seasonalities. Advanced ML models will address these gaps.
+| ATM Name | Model | Rows | MAE | RMSE | MAPE | WAPE |
+| --- | --- | --- | --- | --- | --- | --- |
+| Airport ATM | Naive Previous Day | 81 | 2621.0040 | 3269.4647 | 4.3113 | 0.4008 |
+| Airport ATM | 7-Day Historical Average | 81 | 2440.6374 | 3028.6259 | 4.6016 | 0.3732 |
+| Big Street ATM | Naive Previous Day | 172 | 2006.7364 | 2617.3406 | 0.5388 | 0.3491 |
+| Big Street ATM | 7-Day Historical Average | 172 | 1741.7151 | 2215.8558 | 0.5709 | 0.3030 |
+| Christ College ATM | Naive Previous Day | 177 | 5895.5289 | 7383.0191 | 1.8830 | 0.4916 |
+| Christ College ATM | 7-Day Historical Average | 177 | 4509.7926 | 5752.8715 | 2.3032 | 0.3760 |
+| KK Nagar ATM | Naive Previous Day | 175 | 4597.7536 | 6409.0094 | 1.2701 | 0.5360 |
+| KK Nagar ATM | 7-Day Historical Average | 175 | 3940.3611 | 5218.8094 | 1.3228 | 0.4594 |
+| Mount Road ATM | Naive Previous Day | 181 | 2019.7483 | 2829.5249 | 0.7392 | 0.4933 |
+| Mount Road ATM | 7-Day Historical Average | 181 | 1927.5483 | 2593.2262 | 0.7065 | 0.4708 |
+
+## Secondary Diagnostic: Per-ATM Ratio Split Metrics (70/15/15)
+*Retained for diagnostic comparison against prior iterations (Validation=1,545 rows, Test=1,547 rows).*
+
+| Model | Dataset | Rows | MAE | RMSE | MAPE | WAPE |
+| --- | --- | --- | --- | --- | --- | --- |
+| Naive Previous Day | Validation | 1545 | 3406.7361 | 4622.8019 | 2.6655 | 0.3991 |
+| 7-Day Historical Average | Validation | 1545 | 2750.0621 | 3661.7928 | 3.3615 | 0.3222 |
+| Naive Previous Day | Test | 1547 | 3206.7821 | 4504.5856 | 3.5909 | 0.4556 |
+| 7-Day Historical Average | Test | 1547 | 2684.0662 | 3696.6314 | 4.2696 | 0.3813 |
+
+## Key Observations
+1. **Unified Horizon Parity**: Under the common calendar split, all 5 ATMs are tested exclusively in 2017. The 7-Day Historical Average achieves a Test MAE of 2,969.40 and WAPE of 0.3967 on the unified 786 test rows.
+2. **Baseline Dominance of 7-Day Average**: Across both validation and test sets, the 7-Day Historical Average substantially outperforms the Naive Previous Day model (Test MAE 2,969.40 vs 3,525.64, Test WAPE 0.3967 vs 0.4710), confirming strong weekly demand stability.
+3. **Data Leakage Elimination**: Because all training dates terminate strictly on or before 2015-12-31, models trained on this split cannot peek into 2016 or 2017 data for any ATM.

@@ -1,11 +1,26 @@
-# Environments
+# ===========================================================================
+# ATM Cash Demand Predictor - Git Ignore Configuration
+# ===========================================================================
+
+# Environments & Local Configs
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Node & Frontend Dependencies / Builds
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
+*.local
+.eslintcache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -22,32 +37,39 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Jupyter Notebook
+# Jupyter Notebook & Testing Caches
 .ipynb_checkpoints
-
-# Logs
-*.log
-
-# pytest
 .pytest_cache/
-
-# Coverage
 htmlcov/
 .coverage
+*.log
 
-# Custom Data Directories
-# Ignore raw datasets
+# Scratch Work & Temporary Audit Scripts
+scratch/
+audit_dataset.py
+audit_features.py
+check_dataset.py
+
+# Raw Datasets
 data/raw/*
 !data/raw/.gitkeep
 
-# Ignore processed datasets, but allow documentation and plots
+# Processed Datasets (heavy tables ignored; documentation & analysis plots preserved)
 data/processed/*.csv
 data/processed/*.xlsx
 data/processed/*.parquet
 data/processed/*.pkl
 data/processed/*.joblib
+data/processed/checkpoint_*/
 !data/processed/.gitkeep
 
-# Trained ML model artifacts
+# Trained ML Model Artifacts & Checkpoints
 models/*.joblib
+models/**/*.joblib
 models/*.pkl
+models/**/*.pkl
+models/checkpoint_*/
+!models/model_metadata.json
+!models/.gitkeep
+/data/custom_datasets/*
+!/data/custom_datasets/.gitkeep

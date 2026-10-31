@@ -1,15 +1,16 @@
 # Prediction Pipeline Report
 
 ## Purpose
-Load the trained Gradient Boosting pipeline and generate ATM cash-demand
-predictions using only historically available information.
+Load the trained production pipeline (Random Forest, selected on Common-Calendar validation split)
+and generate ATM cash-demand predictions using only historically available information.
 
 ## Input
 | Field | Value |
 |---|---|
 | Feature dataset | `data/processed/atm_features_model_ready.csv` |
 | Cleaned dataset | `data/processed/atm_transactions_cleaned.csv` |
-| Trained model   | `models/gradient_boosting_pipeline.joblib` |
+| Selected Production Model | `models/random_forest_pipeline.joblib` |
+| Benchmark Model Artifacts | `models/gradient_boosting_pipeline.joblib`, `models/linear_regression_pipeline.joblib` |
 
 ## Feature Generation
 The `predict_demand()` function constructs the exact same features as Phase 3:
@@ -27,8 +28,11 @@ The `predict_demand()` function constructs the exact same features as Phase 3:
 - The model pipeline was trained once and is **never retrained** during prediction.
 - Preprocessing (OneHotEncoder) was fitted on training data and is embedded in the saved pipeline.
 
-## Saved Model
-`models/gradient_boosting_pipeline.joblib` — a scikit-learn `Pipeline` containing `ColumnTransformer` + `GradientBoostingRegressor`.
+## Active Production Model
+`models/random_forest_pipeline.joblib` — a scikit-learn `Pipeline` containing `ColumnTransformer` + `RandomForestRegressor(n_estimators=300, min_samples_leaf=2)`.
+Selected via pre-registered Common Calendar validation benchmark (2016 split MAE: $2,565.97).
+
+*Note: Gradient Boosting (`models/gradient_boosting_pipeline.joblib`) is maintained as an active benchmark model for macro-shock and expanding-window studies.*
 
 ## Output
 A single float representing the predicted `Total amount Withdrawn` (USD) for the requested ATM and date.
@@ -38,8 +42,10 @@ A single float representing the predicted `Total amount Withdrawn` (USD) for the
 |---|---|
 | ATM Name | Mount Road ATM |
 | Forecast Date | 2017-06-15 |
-| Predicted Demand (USD) | 5,124.08 |
+| Production Model | Random Forest (`models/random_forest_pipeline.joblib`) |
+| Predicted Demand (USD) | 4,375.62 |
 | Actual Demand (USD, reference only) | 1,915.76 |
+| Gradient Boosting Benchmark (USD) | 3,466.29 |
 
 ## Limitations
 1. **Lag/rolling features require history**: At minimum 14 prior observations per ATM are needed. Cold-start predictions for a brand-new ATM with no history are not supported without modification.

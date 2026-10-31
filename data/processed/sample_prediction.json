@@ -1,9 +1,11 @@
 {
-  "model": "Gradient Boosting",
-  "model_path": "models/gradient_boosting_pipeline.joblib",
+  "selected_production_model": "Random Forest",
+  "model_path": "models/random_forest_pipeline.joblib",
+  "selection_basis": "Lowest Validation MAE on Common-Calendar 2016 Split ($2,565.97)",
   "atm_name": "Mount Road ATM",
   "forecast_date": "2017-06-15",
-  "predicted_demand_usd": 5124.0768,
+  "predicted_demand_usd": 4375.6237,
   "actual_demand_usd_reference": "1,915.76",
+  "benchmark_gradient_boosting_usd": 3466.2918,
   "note": "Actual value is shown for validation only. In production, the actual value for the forecast date is never available at prediction time."
 }

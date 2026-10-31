@@ -1,0 +1,386 @@
+/* ==========================================================================
+   ATM Cash Demand Predictor — Financial Intelligence Platform
+   Visual Identity: Mode-Inspired Editorial & 3D Interactive Design System
+   ========================================================================== */
+
+:root {
+  /* Mode-Inspired Color Palette */
+  --bg-forest: #073D2E;          /* Forest Green: Hero, active cards, deep contrast */
+  --bg-deep-green: #064B36;      /* Deep Green: Elevated dark surfaces */
+  --bg-dark-emerald: #123F32;    /* Dark Emerald: Accents, borders, sunken wells */
+  --forest-green: #073D2E;       /* Alias for semantic component styles */
+  
+  --accent-lime: #C7F36B;        /* Signature Electric Lime Green: Highlights, CTA, active state */
+  --accent-lime-bright: #D3F47A; /* Bright Lime: Hover & glow */
+  --accent-lime-subtle: rgba(199, 243, 107, 0.14);
+  --lime-green: #C7F36B;         /* Alias for semantic component styles */
+
+  --bg-cream: #F5F3E9;           /* Warm Cream: Editorial background canvas */
+  --bg-cream-elevated: #ECE9DD;  /* Deeper warm tone */
+  --bg-pale-mint: #E8F0E5;       /* Pale Mint: Secondary card surfaces */
+  --bg-white: #FFFFFF;           /* Crisp White: Card containers */
+
+  --text-dark: #073D2E;          /* Deep Forest text for maximum contrast on light surfaces */
+  --text-charcoal: #1E2922;      /* Charcoal text for body */
+  --text-muted: #52665A;         /* Muted forest-grey for labels & subtitles */
+  --text-light: #F5F3E9;         /* Cream text for dark surfaces */
+  --text-light-muted: #A3BFB1;   /* Soft mint-grey text on dark surfaces */
+
+  --border-forest: rgba(7, 61, 46, 0.14);
+  --border-forest-strong: rgba(7, 61, 46, 0.28);
+  --border-dark: rgba(199, 243, 107, 0.22);
+  --border-lime: #C7F36B;
+
+  /* Typography */
+  --font-display: 'DM Serif Display', 'Playfair Display', Georgia, serif;
+  --font-body: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Mode-Style Shadows & Radii */
+  --shadow-sm: 0 2px 4px rgba(7, 61, 46, 0.04), 0 1px 2px rgba(7, 61, 46, 0.03);
+  --shadow-md: 0 8px 18px rgba(7, 61, 46, 0.06), 0 2px 6px rgba(7, 61, 46, 0.04);
+  --shadow-lg: 0 16px 36px rgba(7, 61, 46, 0.10), 0 4px 12px rgba(7, 61, 46, 0.05);
+  --shadow-lime: 0 0 24px rgba(199, 243, 107, 0.35);
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Motion & Transitions */
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 450ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--bg-cream);
+  color: var(--text-charcoal);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular Numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+/* Headings in Editorial Display Serif */
+h1, h2, h3, .editorial-heading {
+  font-family: var(--font-display);
+  color: var(--text-dark);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.18;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5CD;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #073D2E;
+}
+
+/* Core Layout Shell */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-cream);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--bg-cream);
+}
+
+.view-viewport {
+  padding: 32px 42px 72px;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Mode-Style Card Containers */
+.fintech-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-forest);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.fintech-card:hover {
+  border-color: var(--border-forest-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.card-forest {
+  background: var(--bg-forest);
+  color: var(--text-light);
+  border: 1px solid rgba(199, 243, 107, 0.2);
+}
+
+.card-mint {
+  background: var(--bg-pale-mint);
+  border: 1px solid rgba(7, 61, 46, 0.12);
+}
+
+/* Badges & Pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+.pill-lime {
+  background: var(--accent-lime);
+  color: var(--bg-forest);
+  font-weight: 700;
+}
+
+.pill-forest {
+  background: var(--bg-forest);
+  color: var(--accent-lime);
+  border: 1px solid rgba(199, 243, 107, 0.3);
+}
+
+.pill-mint {
+  background: var(--bg-pale-mint);
+  color: var(--text-dark);
+  border: 1px solid rgba(7, 61, 46, 0.15);
+}
+
+.pill-amber {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.pill-rose {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: var(--radius-full);
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-lime {
+  background: var(--accent-lime);
+  color: var(--bg-forest);
+  box-shadow: 0 4px 14px rgba(199, 243, 107, 0.3);
+}
+
+.btn-lime:hover {
+  background: var(--accent-lime-bright);
+  box-shadow: 0 6px 20px rgba(199, 243, 107, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-lime:disabled {
+  background: #A6C778;
+  color: #2F4D3C;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-forest {
+  background: var(--bg-forest);
+  color: #FFFFFF;
+}
+
+.btn-forest:hover {
+  background: var(--bg-deep-green);
+  transform: translateY(-1px);
+}
+
+.btn-cream {
+  background: rgba(245, 243, 233, 0.15);
+  color: var(--text-light);
+  border: 1px solid rgba(245, 243, 233, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.btn-cream:hover {
+  background: rgba(245, 243, 233, 0.28);
+  border-color: rgba(245, 243, 233, 0.5);
+}
+
+.btn-secondary {
+  background: var(--bg-white);
+  color: var(--text-dark);
+  border: 1px solid var(--border-forest-strong);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-cream);
+  border-color: var(--bg-forest);
+}
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 12px;
+}
+
+/* Inputs & Form Controls */
+.input-control {
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-forest-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-dark);
+  font-size: 13.5px;
+  padding: 10px 14px;
+  width: 100%;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input-control:focus {
+  border-color: var(--bg-forest);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(7, 61, 46, 0.15);
+}
+
+/* Bento Grid System */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 24px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* Typography Helpers */
+.section-heading {
+  font-size: 24px;
+  font-family: var(--font-display);
+  color: var(--text-dark);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.section-subheading {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.5;
+  font-family: var(--font-body);
+}
+
+.text-lime {
+  color: var(--accent-lime);
+}
+
+.text-forest {
+  color: var(--bg-forest);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Spinner Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin, .spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .bento-grid { grid-template-columns: 1fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .app-layout { flex-direction: column; }
+  .view-viewport { padding: 20px 16px 48px; }
+  .bento-grid { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: 1fr; }
+}

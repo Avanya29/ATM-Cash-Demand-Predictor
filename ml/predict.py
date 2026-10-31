@@ -4,8 +4,9 @@ ml/predict.py — ATM Cash Demand Prediction Pipeline
 Phase 6: Production Prediction Pipeline
 
 Purpose:
-    Load the trained Gradient Boosting pipeline (Phase 5) and generate
-    ATM cash-demand predictions for a given ATM and forecast date.
+    Load the production pipeline (Random Forest, selected on Common-Calendar
+    validation split) and generate ATM cash-demand predictions for a given ATM
+    and forecast date.
 
 Key design constraint:
     Lag and rolling features depend on real historical demand values.
@@ -32,13 +33,32 @@ import joblib
 warnings.filterwarnings("ignore")
 
 # ---------------------------------------------------------------------------
-# CONSTANTS — must exactly match ml/train_models.py
+# CONSTANTS & PATH RESOLUTION — anchored to project root
 # ---------------------------------------------------------------------------
-MODEL_PATH       = "models/gradient_boosting_pipeline.joblib"
-FEATURES_PATH    = "data/processed/atm_features_model_ready.csv"
-CLEANED_PATH     = "data/processed/atm_transactions_cleaned.csv"
-SAMPLE_OUT       = "data/processed/sample_prediction.json"
-REPORT_OUT       = "data/processed/prediction_pipeline_report.md"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def _resolve_default_model_path() -> str:
+    env_path = os.getenv("MODEL_PATH")
+    if env_path:
+        return env_path if os.path.isabs(env_path) else os.path.join(PROJECT_ROOT, env_path)
+    meta_path = os.path.join(PROJECT_ROOT, "models", "model_metadata.json")
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+            selected = meta.get("selected_model", "Random Forest")
+            candidate = os.path.join(PROJECT_ROOT, "models", f"{selected.lower().replace(' ', '_')}_pipeline.joblib")
+            if os.path.exists(candidate):
+                return candidate
+        except Exception:
+            pass
+    return os.path.join(PROJECT_ROOT, "models", "random_forest_pipeline.joblib")
+
+MODEL_PATH       = _resolve_default_model_path()
+FEATURES_PATH    = os.getenv("FEATURES_PATH") or os.path.join(PROJECT_ROOT, "data", "processed", "atm_features_model_ready.csv")
+CLEANED_PATH     = os.getenv("CLEANED_PATH") or os.path.join(PROJECT_ROOT, "data", "processed", "atm_transactions_cleaned.csv")
+SAMPLE_OUT       = os.path.join(PROJECT_ROOT, "data", "processed", "sample_prediction.json")
+REPORT_OUT       = os.path.join(PROJECT_ROOT, "data", "processed", "prediction_pipeline_report.md")
 
 VALID_ATMS = [
     "Airport ATM",
@@ -90,12 +110,59 @@ def _calendar_features(date: pd.Timestamp) -> dict:
 # ---------------------------------------------------------------------------
 # HELPER: derive lag + rolling features from a history Series
 # ---------------------------------------------------------------------------
-def _lag_and_rolling_features(history_series: pd.Series) -> dict:
+def _lag_and_rolling_features(history_series: pd.Series, forecast_date: pd.Timestamp = None) -> dict:
     """
-    history_series: demand values for the ATM BEFORE the forecast date,
-                    ordered oldest → newest.
+    history_series: demand values for the ATM BEFORE the forecast date.
+                    If forecast_date is provided and index is DatetimeIndex,
+                    derives features based on actual calendar days (t-1, t-2, etc.).
+                    Otherwise, falls back to positional tail lookbacks.
     All features look backward, never forward.
     """
+    if forecast_date is not None and isinstance(history_series.index, pd.DatetimeIndex):
+        forecast_ts = pd.Timestamp(forecast_date)
+        
+        def get_cal_lag(n_days):
+            target_d = forecast_ts - pd.Timedelta(days=n_days)
+            val = history_series.get(target_d, np.nan)
+            return float(val) if pd.notna(val) else np.nan
+
+        lag1 = get_cal_lag(1)
+        lag2 = get_cal_lag(2)
+        lag3 = get_cal_lag(3)
+        lag7 = get_cal_lag(7)
+        lag8 = get_cal_lag(8)
+        lag14 = get_cal_lag(14)
+
+        # Calendar windows:
+        w3_dates = pd.date_range(forecast_ts - pd.Timedelta(days=3), forecast_ts - pd.Timedelta(days=1), freq='D')
+        w7_dates = pd.date_range(forecast_ts - pd.Timedelta(days=7), forecast_ts - pd.Timedelta(days=1), freq='D')
+        w14_dates = pd.date_range(forecast_ts - pd.Timedelta(days=14), forecast_ts - pd.Timedelta(days=1), freq='D')
+
+        w3_vals = [history_series.get(d, np.nan) for d in w3_dates if pd.notna(history_series.get(d, np.nan))]
+        w7_vals = [history_series.get(d, np.nan) for d in w7_dates if pd.notna(history_series.get(d, np.nan))]
+        w14_vals = [history_series.get(d, np.nan) for d in w14_dates if pd.notna(history_series.get(d, np.nan))]
+
+        rmean3 = float(np.mean(w3_vals)) if len(w3_vals) >= 1 else np.nan
+        rmean7 = float(np.mean(w7_vals)) if len(w7_vals) >= 1 else np.nan
+        rmean14 = float(np.mean(w14_vals)) if len(w14_vals) >= 1 else np.nan
+        rstd7 = float(np.std(w7_vals, ddof=1)) if len(w7_vals) >= 2 else np.nan
+        rstd14 = float(np.std(w14_vals, ddof=1)) if len(w14_vals) >= 2 else np.nan
+
+        return {
+            "demand_lag_1": lag1,
+            "demand_lag_2": lag2,
+            "demand_lag_3": lag3,
+            "demand_lag_7": lag7,
+            "demand_lag_14": lag14,
+            "demand_rolling_mean_3": rmean3,
+            "demand_rolling_mean_7": rmean7,
+            "demand_rolling_mean_14": rmean14,
+            "demand_rolling_std_7": rstd7,
+            "demand_rolling_std_14": rstd14,
+            "demand_change_1d": (lag1 - lag2) if (not np.isnan(lag1) and not np.isnan(lag2)) else np.nan,
+            "demand_change_7d": (lag1 - lag8) if (not np.isnan(lag1) and not np.isnan(lag8)) else np.nan,
+        }
+
     vals = history_series.values  # numpy array, chronological
 
     def lag(n):
@@ -249,6 +316,20 @@ def predict_demand(
         cleaned_df = pd.read_csv(CLEANED_PATH)
         cleaned_df["Transaction Date"] = pd.to_datetime(cleaned_df["Transaction Date"])
 
+    # -- Validate against overall dataset date coverage
+    ds_min = historical_data["Transaction Date"].min()
+    ds_max = historical_data["Transaction Date"].max()
+    if forecast_date < ds_min:
+        raise ValueError(
+            f"Forecast date '{forecast_date.date()}' precedes historical dataset start ({ds_min.date()}). "
+            f"At least {MIN_HISTORY_ROWS} prior observations are required."
+        )
+    if forecast_date > ds_max:
+        raise ValueError(
+            f"Forecast date '{forecast_date.date()}' is beyond the supported historical dataset horizon "
+            f"({ds_min.date()} to {ds_max.date()}). Out-of-sample future forecasting requires real-time telemetry."
+        )
+
     # -- Extract strictly prior history for this ATM
     atm_df = historical_data[
         (historical_data["ATM Name"] == atm_name) &
@@ -261,16 +342,17 @@ def predict_demand(
             f"Need at least {MIN_HISTORY_ROWS} prior observations, found {len(atm_df)}."
         )
 
-    # -- Build lag/rolling features from prior demand values
-    history_series = atm_df["Total amount Withdrawn"]
-    lag_roll = _lag_and_rolling_features(history_series)
+    # -- Build lag/rolling features from prior demand values (calendar-day aligned)
+    history_series = atm_df.set_index("Transaction Date")["Total amount Withdrawn"]
+    lag_roll = _lag_and_rolling_features(history_series, forecast_date=forecast_date)
 
     # Check for NaN in required features
     missing = [k for k, v in lag_roll.items() if np.isnan(v)]
     if missing:
         raise ValueError(
-            f"Could not compute features {missing} for '{atm_name}' on {forecast_date.date()}. "
-            f"Not enough prior observations."
+            f"Cannot forecast demand for '{atm_name}' on {forecast_date.date()}: "
+            f"missing historical calendar lag observations for {missing}. "
+            f"The model strictly requires prior calendar day demand without zero-filling."
         )
 
     # -- Build calendar + cyclical features

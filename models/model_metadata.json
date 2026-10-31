@@ -1,0 +1,136 @@
+{
+  "training_date": "2026-10-27 12:59:19",
+  "split_strategy": "calendar",
+  "target": "Total amount Withdrawn",
+  "all_features": [
+    "ATM Name",
+    "Weekday",
+    "Festival Religion",
+    "Working Day",
+    "Holiday Sequence",
+    "year",
+    "month",
+    "day_of_month",
+    "day_of_week",
+    "week_of_year",
+    "quarter",
+    "is_weekend",
+    "day_of_week_sin",
+    "day_of_week_cos",
+    "month_sin",
+    "month_cos",
+    "demand_lag_1",
+    "demand_lag_2",
+    "demand_lag_3",
+    "demand_lag_7",
+    "demand_lag_14",
+    "demand_rolling_mean_3",
+    "demand_rolling_mean_7",
+    "demand_rolling_mean_14",
+    "demand_rolling_std_7",
+    "demand_rolling_std_14",
+    "demand_change_1d",
+    "demand_change_7d"
+  ],
+  "categorical_features": [
+    "ATM Name",
+    "Weekday",
+    "Festival Religion",
+    "Working Day",
+    "Holiday Sequence"
+  ],
+  "numerical_features": [
+    "year",
+    "month",
+    "day_of_month",
+    "day_of_week",
+    "week_of_year",
+    "quarter",
+    "is_weekend",
+    "day_of_week_sin",
+    "day_of_week_cos",
+    "month_sin",
+    "month_cos",
+    "demand_lag_1",
+    "demand_lag_2",
+    "demand_lag_3",
+    "demand_lag_7",
+    "demand_lag_14",
+    "demand_rolling_mean_3",
+    "demand_rolling_mean_7",
+    "demand_rolling_mean_14",
+    "demand_rolling_std_7",
+    "demand_rolling_std_14",
+    "demand_change_1d",
+    "demand_change_7d"
+  ],
+  "model_names": [
+    "Linear Regression",
+    "Random Forest",
+    "Gradient Boosting"
+  ],
+  "date_ranges": {
+    "train": {
+      "start": "2011-01-15",
+      "end": "2015-12-31",
+      "rows": 8596
+    },
+    "validation": {
+      "start": "2016-01-01",
+      "end": "2016-12-01",
+      "rows": 914
+    },
+    "test": {
+      "start": "2017-01-11",
+      "end": "2017-09-29",
+      "rows": 786
+    }
+  },
+  "validation_metrics": {
+    "Linear Regression": {
+      "MAE": 2773.742,
+      "RMSE": 3695.0436,
+      "MAPE": 4.1001,
+      "WAPE": 0.3736,
+      "R2": 0.2973
+    },
+    "Random Forest": {
+      "MAE": 2565.9692,
+      "RMSE": 3517.8924,
+      "MAPE": 4.7639,
+      "WAPE": 0.3456,
+      "R2": 0.3631
+    },
+    "Gradient Boosting": {
+      "MAE": 2566.7164,
+      "RMSE": 3496.2922,
+      "MAPE": 4.8722,
+      "WAPE": 0.3457,
+      "R2": 0.3709
+    }
+  },
+  "test_metrics": {
+    "Linear Regression": {
+      "MAE": 2921.0711,
+      "RMSE": 3876.9202,
+      "MAPE": 2.0321,
+      "WAPE": 0.3902,
+      "R2": 0.4533
+    },
+    "Random Forest": {
+      "MAE": 2766.8785,
+      "RMSE": 3763.0322,
+      "MAPE": 1.8479,
+      "WAPE": 0.3696,
+      "R2": 0.4849
+    },
+    "Gradient Boosting": {
+      "MAE": 2683.0318,
+      "RMSE": 3681.0323,
+      "MAPE": 1.7644,
+      "WAPE": 0.3584,
+      "R2": 0.5071
+    }
+  },
+  "selected_model": "Random Forest"
+}
